@@ -6,8 +6,8 @@ let height = 400
 let renderer
 let renderPassTarget, renderTargetA, renderTargetB
 let camera, orthographic
-let mainScene, passScene, postScene
-let cube, passQuad, postQuad
+let mainScene
+let cube, quad, postQuad
 
 init()
 renderer.setAnimationLoop(render)
@@ -31,27 +31,20 @@ function init() {
     // cameras
     camera = new THREE.PerspectiveCamera(45, width / height, 1, 1000)
     camera.position.z = 5
-
     orthographic = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1)
 
-    // scenes
+    // scene
     mainScene = new THREE.Scene()
-    passScene = new THREE.Scene()
-    postScene = new THREE.Scene()
 
-    // Mesh
+    // mesh
     cube = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshNormalMaterial())
     mainScene.add(cube)
 
-    // Pass 
+    // quads 
     let planeGeometry = new THREE.PlaneGeometry(2, 2)
 
-    passQuad = new THREE.Mesh(planeGeometry, new THREE.MeshBasicMaterial({
-        map: null,
-    }))
-    passQuad.material.toneMapped = false
-
-    passScene.add(passQuad)
+    quad = new THREE.Mesh(planeGeometry, new THREE.MeshBasicMaterial({ map: null }))
+    quad.material.toneMapped = false
 
     // Post 
     postQuad = new THREE.Mesh(planeGeometry, new THREE.ShaderMaterial({
@@ -85,8 +78,6 @@ function init() {
             tDiffuse: { value: null },
         }
     }))
-
-    postScene.add(postQuad)
 }
 
 function render() {
@@ -103,17 +94,17 @@ function render() {
     renderer.setRenderTarget(renderPassTarget)
     renderer.render(mainScene, camera)
 
-    passQuad.material.map = renderPassTarget.texture
+    quad.material.map = renderPassTarget.texture
 
     // set renderTargetA as the framebuffer to render to
     renderer.setRenderTarget(renderTargetA)
 
-    // render postScene to renderTargetA,
+    // render postQuad to renderTargetA,
     // this will contain the ping-pong accumulated texture
-    renderer.render(postScene, orthographic)
+    renderer.render(postQuad, orthographic)
 
     // render on top the original scene (texture) containing the objects
-    renderer.render(passScene, orthographic)
+    renderer.render(quad, orthographic)
 
     // set the device screen as the framebuffer to render to
     renderer.setRenderTarget(null)
@@ -122,7 +113,7 @@ function render() {
     postQuad.material.uniforms.tDiffuse.value = renderTargetA.texture
 
     // render the post quad to the screen
-    renderer.render(postScene, orthographic)
+    renderer.render(postQuad, orthographic)
 
     // swap the render targets
     let temp = renderTargetA
