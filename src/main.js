@@ -97,9 +97,6 @@ function init() {
         new THREE.ShaderMaterial({
             vertexShader: baseVert,
             fragmentShader: baseFrag,
-            // uniforms: {
-            //     tDiffuse: { value: null },
-            // },
         })
     )
 }
