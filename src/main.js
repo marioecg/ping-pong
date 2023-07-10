@@ -37,6 +37,7 @@ function init() {
     renderTarget = new THREE.WebGLRenderTarget(width, height, {
         type: THREE.FloatType,
     })
+
     buffer = createDoubleBuffer(width, height)
 
     // camera
@@ -104,15 +105,20 @@ function init() {
 function render() {
     controls.update()
 
-    // Render scene to FBO
-    renderer.setRenderTarget(renderTarget)
-
-    // Blur X
     drawToBufferAndSwap(renderer, buffer, () => {
-        blurXProgram.uniforms.tDiffuse.value = buffer.getReadBuffer().texture
-        quad.material = blurXProgram
-        renderer.render(quad, camera)
+        renderer.render(scene, camera)
     })
+
+
+    // // Render scene to FBO
+    // renderer.setRenderTarget(renderTarget)
+
+    // // Blur X
+    // drawToBufferAndSwap(renderer, buffer, () => {
+    //     blurXProgram.uniforms.tDiffuse.value = buffer.getReadBuffer().texture
+    //     quad.material = blurXProgram
+    //     renderer.render(quad, camera)
+    // })
 
     // Copy pixels to screen
     copyProgram.uniforms.tDiffuse.value = buffer.getReadBuffer().texture
